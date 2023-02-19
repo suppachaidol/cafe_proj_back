@@ -24,7 +24,8 @@ const uploadProfileImg = async (req,res)=>{
         }
   )
 }
+
 module.exports = {
     getDataByUsername,
-    uploadProfileImg
+    uploadProfileImg,
 };

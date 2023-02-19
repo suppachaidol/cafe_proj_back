@@ -156,6 +156,42 @@ const getCafeById = async (req, res, next) => {
   );
 };
 
+const getImageCafeById = async (req,res)=>{
+  cafe_id = req.params.id;
+  await db.execute(
+    "SELECT * FROM images WHERE c_id=?",[cafe_id],
+    function(err, images){
+      if (err) {
+        res.status(400).json({ error: err });
+      } else {
+        res.status(200).json(images)
+      }
+    }
+    
+  )
+}
+
+const calculateStar = async (req,res)=>{
+  let oldStar=req.body.oldStar
+  let newStar=req.body.newStar
+  let numReview=req.body.numReview
+  let currentStar=0
+  let c_id=req.body.c_id
+  currentStar = ((oldStar*numReview)+newStar)/(numReview+1)
+  currentStar = currentStar.toFixed(1)
+  await db.execute(
+    "UPDATE cafe SET c_star=? WHERE c_id=?",[currentStar,c_id],
+    function(err, result){
+      if (err) {
+        res.status(400).json({ error: err });
+      } else {
+        res.status(200).json({result})
+      }
+    }
+    
+  )
+}
+
 module.exports = {
   createCafe,
   uploadCafeImg,
@@ -164,4 +200,6 @@ module.exports = {
   uploadMultiCafeImg,
   uploadCafeProfile,
   getAllCafeByDate,
+  getImageCafeById,
+  calculateStar
 };
