@@ -2,13 +2,14 @@ const db = require("../config/database");
 
 const createCafe = async (req, res, next) => {
   await db.execute(
-    "INSERT INTO cafe (c_name, c_detail, c_service, c_location, c_status, c_lat, c_lon) VALUES(?,?,?,?,?,?,?)",
+    "INSERT INTO cafe (c_name, c_detail, c_service, c_location, c_status, c_map, c_lat, c_lon) VALUES(?,?,?,?,?,?,?,?)",
     [
       req.body.c_name,
       req.body.c_detail,
       req.body.c_service,
       req.body.c_location,
       req.body.c_status,
+      req.body.c_map,
       req.body.c_lat,
       req.body.c_lon,
     ],
@@ -102,7 +103,7 @@ const getAllCafe = async (req, res, next) => {
 
 const getAllCafeByDate = async (req, res, next) => {
   await db.execute(
-    "SELECT * FROM cafe WHERE c_status='pass' ORDER BY updated_at DESC",
+    "SELECT * FROM cafe WHERE c_status='pass' ORDER BY created_at DESC",
     function (err, result_cafe) {
       if (err) {
         res.status(400).json({ error: err });

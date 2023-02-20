@@ -15,8 +15,9 @@ app.use("/api/images/cafe",express.static('resources/images/cafe'))
 
 app.use('/api', require('./routes/users'))
 app.use('/api', require('./routes/cafe'))
-app.use('/api', require('./routes/reviews')) 
-
+app.use('/api', require('./routes/reviews'))
+app.use('/api', require('./routes/user_cafe')) 
+app.use('/api', require('./routes/cafe_time')) 
 
 
 
