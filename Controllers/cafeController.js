@@ -181,7 +181,7 @@ const calculateStar = async (req,res)=>{
   currentStar = ((oldStar*numReview)+newStar)/(numReview+1)
   currentStar = currentStar.toFixed(1)
   await db.execute(
-    "UPDATE cafe SET c_star=? WHERE c_id=?",[currentStar,c_id],
+    "UPDATE cafe SET c_star=?,c_review=? WHERE c_id=?",[currentStar,numReview+1,c_id],
     function(err, result){
       if (err) {
         res.status(400).json({ error: err });
