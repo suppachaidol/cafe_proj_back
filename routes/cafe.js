@@ -28,7 +28,10 @@ router.put("/cafe/upload_profile",auth,upload.single('c_image'),cafeController.u
 router.get("/cafe",cafeController.getAllCafe)
 router.get("/cafe/:id",cafeController.getCafeById)
 router.get("/cafe_date",cafeController.getAllCafeByDate)
+router.get("/cafe_notpass",cafeController.getAllNotpassCafeByDate)
 router.get("/cafe_image/:id",cafeController.getImageCafeById)
 router.put("/cafe/update_star",auth,cafeController.calculateStar)
+router.put("/cafe/update_status",auth,cafeController.updateStatus)
+router.delete("/cafe/reject/:id",auth,cafeController.removeCafe)
 
 module.exports = router

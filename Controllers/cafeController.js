@@ -126,6 +126,31 @@ const getAllCafeByDate = async (req, res, next) => {
   );
 };
 
+const getAllNotpassCafeByDate = async (req, res, next) => {
+  await db.execute(
+    "SELECT * FROM cafe WHERE c_status='notpass' ORDER BY created_at DESC",
+    function (err, result_cafe) {
+      if (err) {
+        res.status(400).json({ error: err });
+      } else {
+        db.execute("SELECT * FROM images", function (err, result_images) {
+          if (err) {
+            res.status(400).json({ error: err });
+          } else {
+            const newResultCafe = result_cafe.map((cafe) => {
+              const image = result_images.filter(
+                (img) => img.c_id === cafe.c_id
+              );
+              return { ...cafe, image };
+            });
+            res.status(200).json(newResultCafe);
+          }
+        });
+      }
+    }
+  );
+};
+
 const getCafeById = async (req, res, next) => {
   cafe_id = req.params.id;
   await db.execute(
@@ -193,6 +218,36 @@ const calculateStar = async (req,res)=>{
   )
 }
 
+const updateStatus = async (req,res)=>{
+  let c_id = req.body.c_id
+  await db.execute(
+    "UPDATE cafe SET c_status='pass' WHERE c_id=?",[c_id],
+    function(err, result){
+      if (err) {
+        res.status(400).json({ error: err });
+      } else {
+        res.status(200).json({result})
+      }
+    }  
+  )
+}
+
+const removeCafe = async (req,res)=>{
+  c_id = req.params.id;
+  await db.execute(
+    "DELETE FROM cafe WHERE c_id=?",[c_id],
+    function(err, user_cafe,fields){
+      if (err) {
+        res.status(400).json({ error: err });
+      } else {
+        res.status(200).json({ status: "ok"})
+      }
+    }
+  )
+}
+
+
+
 module.exports = {
   createCafe,
   uploadCafeImg,
@@ -202,5 +257,8 @@ module.exports = {
   uploadCafeProfile,
   getAllCafeByDate,
   getImageCafeById,
-  calculateStar
+  calculateStar,
+  getAllNotpassCafeByDate,
+  updateStatus,
+  removeCafe,
 };
