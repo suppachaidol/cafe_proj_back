@@ -1,8 +1,9 @@
 const db = require("../config/database");
+const nodeMailer = require('nodemailer');
 
 const createCafe = async (req, res, next) => {
   await db.execute(
-    "INSERT INTO cafe (c_name, c_detail, c_service, c_location, c_status, c_map, c_lat, c_lon) VALUES(?,?,?,?,?,?,?,?)",
+    "INSERT INTO cafe (c_name, c_detail, c_service, c_location, c_status, c_map, u_id, c_lat, c_lon) VALUES(?,?,?,?,?,?,?,?,?)",
     [
       req.body.c_name,
       req.body.c_detail,
@@ -10,6 +11,7 @@ const createCafe = async (req, res, next) => {
       req.body.c_location,
       req.body.c_status,
       req.body.c_map,
+      req.body.u_id,
       req.body.c_lat,
       req.body.c_lon,
     ],
@@ -218,6 +220,36 @@ const calculateStar = async (req,res)=>{
   )
 }
 
+// const html = `<h1>Hello World</h1>
+//               <p>hi hi hi</p>`
+// async function main(){
+//   const transporter = nodeMailer.createTransport({
+//     host: 'mail.openjavascript.info',
+//     port: 465,
+//     secure: true,
+//     auth:{
+//       user: 'suppachai.g@ku.th',
+//       pass: '@1598753Dol10114'
+//     }
+//   })
+//   const info = await transporter.sendMail({
+//     from: 'OpenJavaScript <suppachai.g@ku.th>',
+//     to: 'dolinw55@gmail.com',
+//     subject: 'Testing 123',
+//     html: html,
+//   })
+//   console.log("Message sent: " + info.messageId)
+// }
+
+let transporter = nodeMailer.createTransport({
+  service: 'gmail',
+  auth: {
+      user: 'cafehopper.ku@gmail.com',
+      pass: 'qjlwrvyzskgpywlk'
+  }
+});
+
+
 const updateStatus = async (req,res)=>{
   let c_id = req.body.c_id
   await db.execute(
@@ -226,6 +258,31 @@ const updateStatus = async (req,res)=>{
       if (err) {
         res.status(400).json({ error: err });
       } else {
+        db.execute(
+          "SELECT cafe.*, users.u_email,users.u_name FROM cafe JOIN users ON cafe.u_id = users.u_id WHERE c_id=?",[c_id],
+          function(err,cafe,fields){
+            if(err){
+              res.status(400).json({ error: err });
+            }else{
+              const email = cafe[0].u_email
+              const name = cafe[0].u_name
+              const cafe_name = cafe[0].c_name
+              let mailOptions = {
+                from: 'cafehoper@gmail.com',
+                to: email,
+                subject: 'Cafe Hopper',
+                text: `Dear ${name},\n\nI am writing to inform you that your cafe ${cafe_name} has been approved and is now ready for operation. Congratulations!\n\nIf you have any questions or concerns, please do not hesitate to contact us. We are always here to assist you.\n\nBest regards,\nCafe Hopper Team`
+              };
+              transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log('Email sent: ' + info.response);
+                }
+              });
+            }
+          }
+        )
         res.status(200).json({result})
       }
     }  
@@ -234,6 +291,31 @@ const updateStatus = async (req,res)=>{
 
 const removeCafe = async (req,res)=>{
   c_id = req.params.id;
+  await db.execute(
+    "SELECT cafe.*, users.u_email,users.u_name FROM cafe JOIN users ON cafe.u_id = users.u_id WHERE c_id=?",[c_id],
+    function(err,cafe,fields){
+      if(err){
+        res.status(400).json({ error: err });
+      }else{
+        const email = cafe[0].u_email
+        const name = cafe[0].u_name
+        const cafe_name = cafe[0].c_name
+        let mailOptions = {
+          from: 'cafehoper@gmail.com',
+          to: email,
+          subject: 'Cafe Hopper',
+          text: `Dear ${name},\n\nI regret to inform you that your cafe ${cafe_name} has not been approved. We apologize for any inconvenience this cause.\n\nPlease check your cafe information and reapply your cafe again. We encourage you to contact us if you have any questions or concerns regarding our decision.\n\nOnce again, we apologize for the inconvenience and appreciate your understanding.\n\nBest regards,\nCafe Hopper Team`
+        };
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+              console.log(error);
+          } else {
+              console.log('Email sent: ' + info.response);
+          }
+        });
+      }
+    }
+  )
   await db.execute(
     "DELETE FROM cafe WHERE c_id=?",[c_id],
     function(err, user_cafe,fields){

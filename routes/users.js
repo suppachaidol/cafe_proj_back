@@ -23,6 +23,7 @@ const upload = multer({
 })
 
 router.put("/user/upload-img",upload.single('u_image'),userController.uploadProfileImg)
+router.post("/user/contact",userController.contactAdmin)
 
 router.post("/register",(req, res) => {
   const username = req.body.u_username

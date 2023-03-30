@@ -27,6 +27,18 @@ const createReview = async (req, res) => {
     );
   }
 };
+const getAllReview = async (req,res)=>{
+  await db.execute(
+      "SELECT * FROM reviews",
+      function(err,result){
+          if (err) {
+              res.status(400).json({ error: err });
+            } else {
+              res.status(200).json(result);
+            }
+      }
+  )
+}
 
 const getReviewByCafeId = async (req,res)=>{
     cafe_id = req.params.id
@@ -47,5 +59,6 @@ const getReviewByCafeId = async (req,res)=>{
 
 module.exports = {
   createReview,
-  getReviewByCafeId
+  getReviewByCafeId,
+  getAllReview
 };
