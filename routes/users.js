@@ -44,7 +44,7 @@ router.post("/register",(req, res) => {
           ],
           function (err, results, fields) {
             if (err) {
-              res.status(400).json({ error: err });
+              res.status(400).json({ error: "Register failed" });
             }else{
               res.status(200).json({ status: "ok", u_id: results.insertId});
             }  

@@ -3,26 +3,35 @@ const nodeMailer = require('nodemailer');
 
 const createCafe = async (req, res, next) => {
   await db.execute(
-    "INSERT INTO cafe (c_name, c_detail, c_service, c_location, c_status, c_map, u_id, c_lat, c_lon) VALUES(?,?,?,?,?,?,?,?,?)",
-    [
-      req.body.c_name,
-      req.body.c_detail,
-      req.body.c_service,
-      req.body.c_location,
-      req.body.c_status,
-      req.body.c_map,
-      req.body.u_id,
-      req.body.c_lat,
-      req.body.c_lon,
-    ],
-    function (err, results, fields) {
-      if (err) {
-        res.status(400).json({ error: err });
+    "SELECT * FROM cafe WHERE c_name = ?",[req.body.c_name],
+    async function (err, results, fields) {
+      if (results.length === 1) {
+        res.status(400).json({error: "This cafe already exists"})
       } else {
-        res.status(200).json({ status: "ok", cafe_id: results.insertId });
+        await db.execute(
+          "INSERT INTO cafe (c_name, c_detail, c_service, c_location, c_status, c_map, u_id, c_lat, c_lon) VALUES(?,?,?,?,?,?,?,?,?)",
+          [
+            req.body.c_name,
+            req.body.c_detail,
+            req.body.c_service,
+            req.body.c_location,
+            req.body.c_status,
+            req.body.c_map,
+            req.body.u_id,
+            req.body.c_lat,
+            req.body.c_lon,
+          ],
+          function (err, results, fields) {
+            if (err) {
+              res.status(400).json({ error: err });
+            } else {
+              res.status(200).json({ status: "ok", cafe_id: results.insertId });
+            }
+          }
+        );       
       }
     }
-  );
+  )
 };
 
 const uploadCafeImg = async (req, res, next) => {
@@ -220,26 +229,6 @@ const calculateStar = async (req,res)=>{
   )
 }
 
-// const html = `<h1>Hello World</h1>
-//               <p>hi hi hi</p>`
-// async function main(){
-//   const transporter = nodeMailer.createTransport({
-//     host: 'mail.openjavascript.info',
-//     port: 465,
-//     secure: true,
-//     auth:{
-//       user: 'suppachai.g@ku.th',
-//       pass: '@1598753Dol10114'
-//     }
-//   })
-//   const info = await transporter.sendMail({
-//     from: 'OpenJavaScript <suppachai.g@ku.th>',
-//     to: 'dolinw55@gmail.com',
-//     subject: 'Testing 123',
-//     html: html,
-//   })
-//   console.log("Message sent: " + info.messageId)
-// }
 
 let transporter = nodeMailer.createTransport({
   service: 'gmail',
@@ -268,7 +257,7 @@ const updateStatus = async (req,res)=>{
               const name = cafe[0].u_name
               const cafe_name = cafe[0].c_name
               let mailOptions = {
-                from: 'cafehoper@gmail.com',
+                from: 'cafehopper.ku@gmail.com',
                 to: email,
                 subject: 'Cafe Hopper',
                 text: `Dear ${name},\n\nI am writing to inform you that your cafe ${cafe_name} has been approved and is now ready for operation. Congratulations!\n\nIf you have any questions or concerns, please do not hesitate to contact us. We are always here to assist you.\n\nBest regards,\nCafe Hopper Team`
@@ -301,7 +290,7 @@ const removeCafe = async (req,res)=>{
         const name = cafe[0].u_name
         const cafe_name = cafe[0].c_name
         let mailOptions = {
-          from: 'cafehoper@gmail.com',
+          from: 'cafehopper.ku@gmail.com',
           to: email,
           subject: 'Cafe Hopper',
           text: `Dear ${name},\n\nI regret to inform you that your cafe ${cafe_name} has not been approved. We apologize for any inconvenience this cause.\n\nPlease check your cafe information and reapply your cafe again. We encourage you to contact us if you have any questions or concerns regarding our decision.\n\nOnce again, we apologize for the inconvenience and appreciate your understanding.\n\nBest regards,\nCafe Hopper Team`
@@ -327,8 +316,6 @@ const removeCafe = async (req,res)=>{
     }
   )
 }
-
-
 
 module.exports = {
   createCafe,
