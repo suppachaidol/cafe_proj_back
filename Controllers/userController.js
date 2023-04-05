@@ -29,7 +29,7 @@ let transporter = nodeMailer.createTransport({
   service: 'gmail',
   auth: {
       user: 'cafehopper.ku@gmail.com',
-      pass: 'qjlwrvyzskgpywlk'
+      pass: process.env.PASS
   }
 });
 
@@ -39,7 +39,7 @@ const contactAdmin = async (req,res)=>{
     from: 'cafehopper.ku@gmail.com',
     to: 'cafehopper.ku@gmail.com',
     subject: req.body.subject,
-    text: `User: ${req.body.firstname} ${req.body.lastname}\nEmail: ${req.body.email}\n\n${req.body.detail}`
+    text: `Name: ${req.body.firstname} ${req.body.lastname}\nEmail: ${req.body.email}\n\n${req.body.detail}`
   };
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
